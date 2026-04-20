@@ -1,0 +1,75 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #050505;
+  --panel: #0d0d0d;
+  --line: #1a1a1a;
+  --text: #f5f5f5;
+  --muted: #a3a3a3;
+}
+
+html,
+body {
+  height: 100%;
+  background: radial-gradient(circle at top, #111111 0%, var(--bg) 45%);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+body {
+  height: 100vh;
+}
+
+.page-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.retro-button {
+  appearance: none;
+  border: 1px solid #2f2f2f;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, #161616 0%, #0b0b0b 100%);
+  color: #c7c7c7;
+  font-family: "Courier New", Courier, monospace;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.retro-button:hover {
+  border-color: #5a5a5a;
+  color: #f1f1f1;
+  background: linear-gradient(180deg, #1b1b1b 0%, #101010 100%);
+}
+
+.retro-button:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset -1px -1px 0 rgba(255, 255, 255, 0.05),
+    inset 1px 1px 0 rgba(0, 0, 0, 0.95);
+}
+
+.retro-button:focus-visible {
+  outline: 1px solid #7a7a7a;
+  outline-offset: 2px;
+}
+
+.footer-link {
+  color: #c7c7c7;
+  font-family: "Courier New", Courier, monospace;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #ffffff;
+}
