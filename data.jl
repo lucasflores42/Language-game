@@ -1,7 +1,7 @@
 
 using XLSX, CSV, DataFrames
 
-file = "$( @__DIR__ )/datasets/geo_cepii.xlsx"   # path to your file
+file = "$( @__DIR__ )/datasets/geo_cepii.xlsx"   
 
 # -------------------------------------------------------------------
 # READ EXCEL
@@ -25,10 +25,10 @@ lon_col  = :lon
 area_col = :area
 
 # -------------------------------------------------------------------
-# BUILD CLEAN DATAFRAME
+# BUILD data DATAFRAME
 # -------------------------------------------------------------------
 
-clean = DataFrame(
+data = DataFrame(
     name = df[!, name_col],
     iso  = df[!, iso_col],
     lat  = df[!, lat_col],
@@ -37,20 +37,10 @@ clean = DataFrame(
 )
 
 # -------------------------------------------------------------------
-# FILTER INVALID ROWS
-# -------------------------------------------------------------------
-
-filter!(row ->
-    !ismissing(row.iso) &&
-    !ismissing(row.lat) &&
-    !ismissing(row.lon) &&
-    row.iso != "", clean)
-
-# -------------------------------------------------------------------
 # SAVE CSV
 # -------------------------------------------------------------------
 
-sort!(clean, :name)
-CSV.write("countries.csv", clean)
-println("Saved countries.csv with $(nrow(clean)) countries")
+sort!(data, :name)
+CSV.write("countries.csv", data)
+println("Saved countries.csv with $(nrow(data)) countries")
 
