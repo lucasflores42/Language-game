@@ -67,7 +67,7 @@ function set_neighbors(countrie)
     end
 end
 
-function create_map(countries)
+function create_map(countrie)
 
 	# goal to set coordinates and neighbors of each country
 end
@@ -75,12 +75,13 @@ end
 # -------------------------------------------------------------------------------
 #								Payoff calculation
 # -------------------------------------------------------------------------------
-
 function score_calculation(countrie, i) 
 
 	A = 0.5
 	B = 0.5
 
+	# aprimorar aqui
+	# talvez considerar semelhanca entre vizinhos ou area
 	countrie[i].score = A * countrie[i].language[2] + B * countrie[i].language[3]
 
 	#@printf "%d \n" countries[i].score
@@ -91,7 +92,6 @@ end
 # -------------------------------------------------------------------------------
 #								Update rule
 # -------------------------------------------------------------------------------
-
 function update_rule(countrie, i, j)
 
 	Δ = countrie[j].score-countrie[i].score
@@ -113,6 +113,8 @@ function mcs(countrie)
 
 		# selecionar país I
 		# selecionar país dentro de countries.neighbors j
+		i = rand(1:n)
+		j = rand(1:length(countrie[i].neighbors))
 	
 		score_calculation(countrie, i)
 		score_calculation(countrie, j)
@@ -145,7 +147,7 @@ end
 # -------------------------------------------------------------------------------
 #								Main
 # -------------------------------------------------------------------------------
-function main(n,r,K)
+function main()
 
 	variable = OffsetArray{Float64}(undef, 0:tmax)
 	variable .= 0
