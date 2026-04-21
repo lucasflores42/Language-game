@@ -12,39 +12,46 @@ using OffsetArrays, StructArrays, Printf, DelimitedFiles, Statistics, Random
 mutable struct Countries_struct
 	index::Int64
 	name::String
-    language::Vector{String, Int64, Int64} # language, lexical_density, semantic_precision
+
+    language::Tuple{String, Int64, Int64}  # (name, lexical_density, semantic_precision)
+
 	score::Float64
-	coordinates::Tuple
+	coordinates::Tuple{Float64, Float64}
 	neighbors::Vector{String}
 end
 
 	
-function initialize_countries(countries) 
+function initialize_countries(countrie) 
 
-	countries[1] = Countries_struct(1, "Brazil", "portuguese", 0, ...)
-	countries[2] = Countries_struct(2, "Argentina", "Spanish", 0, ...)
-	# ...
+    countrie[0] = Countries_struct(0, "Brazil", ("Portuguese", 70, 60), 0.0, (0.0, 0.0), String[])
+    countrie[1] = Countries_struct(1, "Argentina", ("Spanish", 65, 70), 0.0, (0.0, 0.0), String[])
+    countrie[2] = Countries_struct(2, "Chile", ("Spanish", 68, 75), 0.0, (0.0, 0.0), String[])
 
 end
 
-function set_neighbors(viz) 
-	#= 
-	para cada país
-		ver se coordenada de outro país está dentro de raio r
-		se sim, push(país, neighbors)
-	=#
+function set_neighbors(countrie)
+
+	countrie[0].neighbors = ["Argentina", "Chile"]
+	countrie[1].neighbors = ["Brazil", "Chile"]
+	countrie[2].neighbors = ["Brazil", "Argentina"]
+
+end
+
+function create_map(countries)
+
+	# goal to set coordinates and neighbors of each country
 end
 
 # -------------------------------------------------------------------------------
 #								Payoff calculation
 # -------------------------------------------------------------------------------
 
-function score_calculation(countries, i) 
+function score_calculation(countrie, i) 
 
 	A = 0.5
 	B = 0.5
 
-	countries[i].score = A * countries[i].lexical_density + B * countries[i].semantic_precision
+	countrie[i].score = A * countrie[i].language[2] + B * countrie[i].language[3]
 
 	#@printf "%d \n" countries[i].score
 end	
@@ -55,42 +62,42 @@ end
 #								Update rule
 # -------------------------------------------------------------------------------
 
-function update_rule(countries, i, j)
+function update_rule(countrie, i, j)
 
-	Δ = countries[j].score-countries[i].score
+	Δ = countrie[j].score-countrie[i].score
 	β = 1/0.1
 	Wxy = 1.0/(1.0 + exp(-β*Δ))
 	a = rand()
 
 	if Wxy > a
-		countries[i].language = countries[j].language
+		countrie[i].language = countrie[j].language
 	end
 end
 
 # -------------------------------------------------------------------------------
 #								Monte Carlo Step
 # -------------------------------------------------------------------------------
-function mcs(countries)
+function mcs(countrie)
 
 	for n in 0:N-1
 
 		# selecionar país I
 		# selecionar país dentro de countries.neighbors j
 	
-		score_calculation(countries, i)
-		score_calculation(countries, j)
+		score_calculation(countrie, i)
+		score_calculation(countrie, j)
 		
-		update_rule(countries, i, j)		
+		update_rule(countrie, i, j)		
 	end
 end
 
 # -------------------------------------------------------------------------------
 #								Time dynamics
 # -------------------------------------------------------------------------------
-function time_dynamics(countries)
+function time_dynamics(countrie)
 
 	for t in 1:tmax
-		mcs(countries)   	
+		mcs(countrie)   	
     end
 end
 
@@ -110,14 +117,15 @@ end
 # -------------------------------------------------------------------------------
 function main(n,r,K)
 
-	countries = OffsetArray{Countries_struct, 1}(undef, 0:N-1) 
+	countrie = OffsetArray{Countries_struct, 1}(undef, 0:N-1) 
 	variable = OffsetArray{Float64}(undef, 0:tmax)
 
 	variable .= 0
 
-	initialize_countries(countries)
-	set_neighbors()
-	time_dynamics(countries, variable)
+	initialize_countries(countrie)
+	set_neighbors(countrie)
+	create_map(countrie)
+	time_dynamics(countrie, variable)
 	save_data(variable, i)
 end
 
