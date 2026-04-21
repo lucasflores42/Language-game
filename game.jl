@@ -10,31 +10,61 @@ using OffsetArrays, StructArrays, Printf, DelimitedFiles, Statistics, Random
 # -------------------------------------------------------------------------------
 
 mutable struct Countries_struct
-	index::Int64
+	iso::String
 	name::String
 
-    language::Tuple{String, Int64, Int64}  # (name, lexical_density, semantic_precision)
+	# (name, lexical_density, semantic_precision)
+    language::Tuple{String, Int64, Int64}  
 
 	score::Float64
 	coordinates::Tuple{Float64, Float64}
+	area::Float64
 	neighbors::Vector{String}
 end
 
-	
-function initialize_countries(countrie) 
+function initialize_countries()
 
-    countrie[0] = Countries_struct(0, "Brazil", ("Portuguese", 70, 60), 0.0, (0.0, 0.0), String[])
-    countrie[1] = Countries_struct(1, "Argentina", ("Spanish", 65, 70), 0.0, (0.0, 0.0), String[])
-    countrie[2] = Countries_struct(2, "Chile", ("Spanish", 68, 75), 0.0, (0.0, 0.0), String[])
+	countries_df = CSV.read("countries.csv", DataFrame)
+    global n = nrow(countries_df)
 
+    countrie = Vector{Countries_struct}(undef, n)
+
+    for i in 1:n
+        iso = countries_df.iso[i]
+        name = countries_df.name[i]
+        lat = countries_df.lat[i]
+        lon = countries_df.lon[i]
+		lang = countries_df.language[i]
+		area = countries_df.area[i]
+
+        countrie[i] = Countries_struct(
+            iso,
+            name,
+            (lang, 0, 0),  
+            0,
+            (lat, lon),
+			area,
+            String[]
+        )
+    end
+
+    return countrie
 end
 
 function set_neighbors(countrie)
 
-	countrie[0].neighbors = ["Argentina", "Chile"]
-	countrie[1].neighbors = ["Brazil", "Chile"]
-	countrie[2].neighbors = ["Brazil", "Argentina"]
+	borders_df = CSV.read("borders.csv", DataFrame)
+	rows = nrow(borders_df)
 
+    for i in 1:rows
+
+		neighbor = borders_df.iso2[i]
+		link = borders_df.contig[i]
+
+		if link == 1
+			push!(countrie[i].neighbors, neighbor)
+		end
+    end
 end
 
 function create_map(countries)
@@ -117,12 +147,10 @@ end
 # -------------------------------------------------------------------------------
 function main(n,r,K)
 
-	countrie = OffsetArray{Countries_struct, 1}(undef, 0:N-1) 
 	variable = OffsetArray{Float64}(undef, 0:tmax)
-
 	variable .= 0
 
-	initialize_countries(countrie)
+	countrie = initialize_countries()
 	set_neighbors(countrie)
 	create_map(countrie)
 	time_dynamics(countrie, variable)
