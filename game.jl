@@ -27,7 +27,7 @@ function initialize_countries()
 	countries_df = CSV.read("countries.csv", DataFrame)
     global n = nrow(countries_df)
 
-    countrie = Vector{Countries_struct}(undef, n)
+    country = Vector{Countries_struct}(undef, n)
 
     for i in 1:n
         iso = countries_df.iso[i]
@@ -37,7 +37,7 @@ function initialize_countries()
 		lang = countries_df.language[i]
 		area = countries_df.area[i]
 
-        countrie[i] = Countries_struct(
+        country[i] = Countries_struct(
             iso,
             name,
             (lang, 0, 0),  
@@ -48,10 +48,10 @@ function initialize_countries()
         )
     end
 
-    return countrie
+    return country
 end
 
-function set_neighbors(countrie)
+function set_neighbors(country)
 
 	borders_df = CSV.read("borders.csv", DataFrame)
 	rows = nrow(borders_df)
@@ -62,12 +62,12 @@ function set_neighbors(countrie)
 		link = borders_df.contig[i]
 
 		if link == 1
-			push!(countrie[i].neighbors, neighbor)
+			push!(country[i].neighbors, neighbor)
 		end
     end
 end
 
-function create_map(countrie)
+function create_map(country)
 
 	# goal to set coordinates and neighbors of each country
 end
@@ -75,14 +75,14 @@ end
 # -------------------------------------------------------------------------------
 #								Payoff calculation
 # -------------------------------------------------------------------------------
-function score_calculation(countrie, i) 
+function score_calculation(country, i) 
 
 	A = 0.5
 	B = 0.5
 
 	# aprimorar aqui
 	# talvez considerar semelhanca entre vizinhos ou area
-	countrie[i].score = A * countrie[i].language[2] + B * countrie[i].language[3]
+	country[i].score = A * country[i].language[2] + B * country[i].language[3]
 
 	#@printf "%d \n" countries[i].score
 end	
@@ -92,44 +92,44 @@ end
 # -------------------------------------------------------------------------------
 #								Update rule
 # -------------------------------------------------------------------------------
-function update_rule(countrie, i, j)
+function update_rule(country, i, j)
 
-	Δ = countrie[j].score-countrie[i].score
+	Δ = country[j].score-country[i].score
 	β = 1/0.1
 	Wxy = 1.0/(1.0 + exp(-β*Δ))
 	a = rand()
 
 	if Wxy > a
-		countrie[i].language = countrie[j].language
+		country[i].language = country[j].language
 	end
 end
 
 # -------------------------------------------------------------------------------
 #								Monte Carlo Step
 # -------------------------------------------------------------------------------
-function mcs(countrie)
+function mcs(country)
 
 	for n in 0:N-1
 
 		# selecionar país I
 		# selecionar país dentro de countries.neighbors j
 		i = rand(1:n)
-		j = rand(1:length(countrie[i].neighbors))
+		j = rand(1:length(country[i].neighbors))
 	
-		score_calculation(countrie, i)
-		score_calculation(countrie, j)
+		score_calculation(country, i)
+		score_calculation(country, j)
 		
-		update_rule(countrie, i, j)		
+		update_rule(country, i, j)		
 	end
 end
 
 # -------------------------------------------------------------------------------
 #								Time dynamics
 # -------------------------------------------------------------------------------
-function time_dynamics(countrie)
+function time_dynamics(country)
 
 	for t in 1:tmax
-		mcs(countrie)   	
+		mcs(country)   	
     end
 end
 
@@ -152,10 +152,10 @@ function main()
 	variable = OffsetArray{Float64}(undef, 0:tmax)
 	variable .= 0
 
-	countrie = initialize_countries()
-	set_neighbors(countrie)
-	create_map(countrie)
-	time_dynamics(countrie, variable)
+	country = initialize_countries()
+	set_neighbors(country)
+	create_map(country)
+	time_dynamics(country, variable)
 	save_data(variable, i)
 end
 
