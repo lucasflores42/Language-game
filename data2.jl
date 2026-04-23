@@ -33,7 +33,8 @@ data = DataFrame(
 # -------------------------------------------------------------------
 # KEEP ONLY BORDERS (contig = 1)
 # -------------------------------------------------------------------
-
+# filter selects rows that satisfy the condition
+# filter! modifies the original data
 filter!(row -> row.contig == 1, data)
 filter!(row -> row.iso1 != row.iso2, data)
 
