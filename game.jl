@@ -77,13 +77,30 @@ end
 # -------------------------------------------------------------------------------
 function score_calculation(country, i) 
 
+	similarity = 0
+	complexity = 0
+
+	n_neighbors = length(country[i].neighbors)
+	n_features = length(country[i].language) - 1
+
+	for j in 1:n_neighbors
+		for i in 2:n_features
+			# similarity
+			if country[i].language[i] == country[j].language[i]
+				similarity += 1
+			end
+			# complexity
+			complexity += country[i].language[i]
+		end
+	end
+
+	similarity /= n_neighbors * n_features
+	complexity /= n_neighbors * n_features
+
 	A = 0.5
 	B = 0.5
 
-	# aprimorar aqui
-	# talvez considerar semelhanca entre vizinhos ou area
-	country[i].score = A * country[i].language[2] + B * country[i].language[3]
-
+	country[i].score = A * similarity + B * complexity
 	#@printf "%d \n" countries[i].score
 end	
 
