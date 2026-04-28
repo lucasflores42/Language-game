@@ -191,20 +191,41 @@ end
 # -------------------------------------------------------------------------------
 function time_dynamics(country, iso_to_index)
 
-	for t in 1:tmax
-		mcs(country, iso_to_index)   	
+    df = DataFrame(
+        time = Int[],
+        iso = String[],
+        f1 = Float64[],
+        f2 = Float64[],
+        f3 = Float64[],
+        f4 = Float64[],
+        f5 = Float64[]
+    )
+
+    for t in 1:tmax
+        mcs(country, iso_to_index)
+        save_data(country, t, df)
     end
+
+    CSV.write("output.csv", df)
 end
 
 # -------------------------------------------------------------------------------
 #								Save data
 # -------------------------------------------------------------------------------
-function save_data(variable, i)
+function save_data(country, t, df)
 
-	t=1:tmax
-	directoryPath = string(@__DIR__, "/data/")
-	filename = @sprintf("%sdata%d_p%.3f.dat",directoryPath, i, r)
-	writedlm(filename,[t variable])
+    for c in country
+        push!(df, (
+            time = t,
+            iso = c.iso,
+            f1 = c.language[2],
+            f2 = c.language[3],
+            f3 = c.language[4],
+            f4 = c.language[5],
+            f5 = c.language[6]
+        ))
+    end
+
 end
 
 # -------------------------------------------------------------------------------
@@ -221,19 +242,14 @@ function main()
 	#create_map(country)
 	iso_to_index = Dict(c.iso => c.index for c in country)
 	time_dynamics(country, iso_to_index)
-	#save_data(variable, i)
+
 end
 
 # -------------------------------------------------------------------------------
 #								Parameters
 # -------------------------------------------------------------------------------
 
-const tmax=10^4
+const tmax=10
 
 Random.seed!() # put number inside () to fix seed
 main()
-
-# tarefas
-# organizar dados wals
-# criar coordenadas mapa topologico
-# subdividir os paises
